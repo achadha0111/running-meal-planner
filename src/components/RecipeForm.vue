@@ -29,7 +29,7 @@
                 </md-field>
                 <md-field>
                     <label>Link</label>
-                    <md-input id= "link" v-model="link" placeholder= "Link (to retrieve ingredients)"></md-input>
+                    <md-input id= "link" v-model="link" placeholder= "Link (to retrieve ingredients)" required></md-input>
                 </md-field>
                 <label>Contains Meat?</label>
                 <div>
@@ -45,16 +45,20 @@
             <div class="md-layout" :class="`md-alignment`">
 
                 <div class="md-layout-item" style="margin-bottom:20px;">
-                    <md-button class="md-raised md-accent search-btn"
+                    <md-button v-on:click="sendPost" class="md-raised md-accent search-btn"
                     >Submit</md-button>
                 </div>
 
             </div>
         </div>
+        <h1 class="title-text col-md-12" v-if="postFailed" style="color: darkred"> Sorry, we are having trouble
+            saving this recipe. Please try again later. </h1>
     </div>
 </template>
 
 <script>
+    import axios from 'axios';
+
     export default {
         name: "RecipeForm",
         data: () => ({
@@ -62,8 +66,31 @@
             mealType: '',
             workoutType: '',
             link: '',
-            containsMeat: ''
+            containsMeat: '',
+            postFailed: false
         }),
+
+        methods: {
+            sendPost: function () {
+                this.postMovie(this.name, this.mealType, this.workoutType, this.link, this.containsMeat)
+                this.name = '';
+                this.mealType = '';
+                this.workoutType = '';
+                this.link = '';
+                this.containsMeat = '';
+                this.postFailed = false;
+            },
+
+            postMovie: async function(name, mt, wt, link, cm) {
+                let result = await axios.post(`http://127.0.0.1:5000/saverecipe?name=${name}
+                &mealType=${mt}&workoutType=${wt}&link=${link}&containsMeat=${cm}`);
+
+                if (result.status !== 200) {
+                    this.postFailed = false;
+                }
+
+            }
+        }
     }
 </script>
 
